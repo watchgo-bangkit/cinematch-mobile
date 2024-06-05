@@ -178,7 +178,7 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                 emailError = !emailPattern.matcher(email).matches()
                 passwordError = password.length < 5
                 if (!emailError && !passwordError) {
-                    // Handle successful login
+                    // TODO : LOG IN
                 }
             },
             modifier = Modifier.padding(top = 10.dp)

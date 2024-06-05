@@ -47,6 +47,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
+    var usernameError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
 
     val emailPattern = Pattern.compile(
@@ -139,6 +140,17 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp, vertical = 6.dp)
         )
 
+        if (usernameError) {
+            Text(
+                text = "Username must not be empty",
+                color = Color.Red,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier
+                    .padding(bottom = 10.dp, start = 10.dp)
+                    .align(Alignment.Start)
+            )
+        }
+
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -197,8 +209,9 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
             onClick = {
                 emailError = !emailPattern.matcher(email).matches()
                 passwordError = password.length < 5
+                usernameError = username.isEmpty()
                 if (!emailError && !passwordError) {
-                    // Handle successful login
+                    navController.navigate("genresSelection/${email}/${username}/${password}")
                 } },
             modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
         )
