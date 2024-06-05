@@ -26,8 +26,9 @@ fun CustomButton(
     backgroundColor: Color,
     borderColor: Color? = null, // Optional border color
     onClick: () -> Unit,
+    modifier : Modifier,
 ) {
-    val buttonModifier = Modifier.fillMaxWidth()
+    val buttonModifier = modifier.fillMaxWidth()
         .clip(shape = RoundedCornerShape(10.dp))
         .background(color = backgroundColor)
         .padding(horizontal = 24.dp, vertical = 16.dp)

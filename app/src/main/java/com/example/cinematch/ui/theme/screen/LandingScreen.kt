@@ -66,14 +66,16 @@ fun LandingScreen(navController: NavController, modifier: Modifier = Modifier) {
                 text = "Login",
                 textColor = Color(0xff121212),
                 backgroundColor = Color(0xff95acff),
-                onClick = { navController.navigate("login") }
+                onClick = { navController.navigate("login") },
+                modifier = Modifier
             )
 
             CustomButton(
                 text = "Sign Up",
                 textColor = Color(0xff95acff),
                 backgroundColor = Color.White,
-                onClick = { navController.navigate("signup") }
+                onClick = { navController.navigate("signup") },
+                modifier = Modifier
             )
         }
         Text(

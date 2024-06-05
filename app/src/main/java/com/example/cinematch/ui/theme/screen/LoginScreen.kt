@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import androidx.constraintlayout.compose.Visibility
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.cinematch.R
@@ -74,7 +73,7 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 4.dp)
+                .padding(bottom = 10.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .border(BorderStroke(1.dp, Color(0xff95acff)), shape = RoundedCornerShape(30.dp))
                 .padding(horizontal = 16.dp, vertical = 6.dp)
@@ -90,7 +89,6 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                 value = email,
                 onValueChange = { email = it },
                 placeholder = { Text(text = "Email", color = Color.Gray) },
-                isError = emailError,
                 textStyle = TextStyle(color = Color.White),
                 singleLine = true,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -104,18 +102,22 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                     .background(Color.Transparent)
             )
         }
+        if (emailError) {
             Text(
                 text = "Invalid email address",
                 color = Color.Red,
                 style = TextStyle(fontSize = 12.sp),
-                modifier = Modifier.padding(top = 0.dp)
+                modifier = Modifier
+                    .padding(bottom = 10.dp, start = 10.dp)
+                    .align(Alignment.Start)
             )
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp)
+                .padding(bottom = 4.dp)
                 .clip(RoundedCornerShape(30.dp))
                 .border(BorderStroke(1.dp, Color(0xff95acff)), shape = RoundedCornerShape(30.dp))
                 .padding(horizontal = 16.dp, vertical = 6.dp)
@@ -131,7 +133,6 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                 value = password,
                 onValueChange = { password = it },
                 placeholder = { Text(text = "Password", color = Color.Gray) },
-                isError = passwordError,
                 textStyle = TextStyle(color = Color.White),
                 singleLine = true,
                 trailingIcon = {
@@ -156,15 +157,18 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                     .weight(1f)
                     .background(Color.Transparent)
             )
-            if (passwordError) {
-                Text(
-                    text = "Password must be at least 8 characters",
-                    color = Color.Red,
-                    style = TextStyle(fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
         }
+        if (passwordError) {
+            Text(
+                text = "Password must be at least 5 characters",
+                color = Color.Red,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 20.dp, start = 10.dp)
+                    .align(Alignment.Start)
+            )
+        }
+
 
         CustomButton(
             text = "Login",
@@ -172,11 +176,12 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
             backgroundColor = Color(0xff95acff),
             onClick = {
                 emailError = !emailPattern.matcher(email).matches()
-                passwordError = password.length < 8
+                passwordError = password.length < 5
                 if (!emailError && !passwordError) {
                     // Handle successful login
                 }
-            }
+            },
+            modifier = Modifier.padding(top = 10.dp)
         )
 
         Row(
