@@ -25,15 +25,13 @@ fun CustomButton(
     textColor: Color,
     backgroundColor: Color,
     borderColor: Color? = null, // Optional border color
-    onClick: () -> Unit // What should happen when the button is clicked
+    onClick: () -> Unit,
 ) {
-    val buttonModifier = Modifier
-        .requiredWidth(width = 328.dp)
-        .requiredHeight(height = 52.dp)
+    val buttonModifier = Modifier.fillMaxWidth()
         .clip(shape = RoundedCornerShape(10.dp))
         .background(color = backgroundColor)
-        .padding(horizontal = 24.dp, vertical = 8.dp)
-        .clickable(onClick = onClick) // Handling click
+        .padding(horizontal = 24.dp, vertical = 16.dp)
+        .clickable(onClick = onClick)
 
     if (borderColor != null) {
         Row(
