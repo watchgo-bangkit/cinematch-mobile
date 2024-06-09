@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
@@ -24,10 +25,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.cinematch.R
 import com.example.cinematch.ui.theme.utils.CustomButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 
 
 @Composable
 fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
+    val radioOptions = listOf("Female", "Male", "Not Specified")
+    var selectedGender by remember { mutableStateOf("") }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(30.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -103,6 +109,40 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(30.dp)
             )
+        }
+
+        Column( // Use Column for vertical stacking
+            verticalArrangement = Arrangement.SpaceBetween, // Adjust spacing as needed
+            modifier = Modifier
+                .requiredWidth(329.dp)
+        ) {
+            Text( // Text label above radio buttons
+                text = "Gender:",
+                color = Color.White
+            )
+            Row( // Row to hold multiple Columns
+                horizontalArrangement = Arrangement.spacedBy(16.dp), // Adjust spacing between Columns
+                modifier = Modifier.padding(horizontal = 4.dp)
+            ) {
+                radioOptions.forEach { option ->
+                    Column( // Individual Column for each option + radio button
+                        modifier = Modifier.weight(1f) // Share available space equally
+                    ) {
+                        RadioButton( // Radio button in its Column
+                            selected = selectedGender == option,
+                            onClick = { selectedGender = option },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = Color(0xff95acff), // Set selected color to white
+                                unselectedColor = Color.White // Optional: adjust unselected color
+                            )
+                        )
+                        Text( // Option text below radio button
+                            text = option,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
         }
 
         Row(
