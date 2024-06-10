@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
@@ -42,13 +43,21 @@ import java.util.regex.Pattern
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
+    val radioOptions = listOf("Female", "Male", "Not Specified")
+
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+
     var passwordVisible by remember { mutableStateOf(false) }
+
     var emailError by remember { mutableStateOf(false) }
     var usernameError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
+    var genderError by remember { mutableStateOf(false) }
+    var ageError by remember { mutableStateOf(false) }
 
     val emailPattern = Pattern.compile(
         "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
@@ -202,6 +211,87 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
             )
         }
 
+        // Age Input Field
+        OutlinedTextField(
+            value = age,
+            onValueChange = { age = it },
+            placeholder = { Text(text = "Age", color = Color.Gray) },
+            textStyle = TextStyle(color = Color.White),
+            singleLine = true,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = Color.Transparent,
+                cursorColor = Color.White
+            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp)
+                .clip(RoundedCornerShape(30.dp))
+                .border(BorderStroke(1.dp, Color(0xff95acff)), shape = RoundedCornerShape(30.dp))
+                .background(Color.Transparent)
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+        )
+
+        if (ageError) {
+            Text(
+                text = "Age must be a valid number",
+                color = Color.Red,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier
+                    .padding(bottom = 20.dp, start = 10.dp)
+                    .align(Alignment.Start)
+            )
+        }
+
+        Text(
+            text = "Gender",
+            color = Color.White,
+            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+            modifier = Modifier
+                .align(Alignment.Start)
+                .padding(start = 10.dp, bottom = 4.dp)
+        )
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            radioOptions.forEach { option ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = gender == option,
+                        onClick = { gender = option },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = Color(0xff95acff),
+                            unselectedColor = Color.White
+                        )
+                    )
+                    Text(
+                        text = option,
+                        color = Color.White,
+                        style = TextStyle(fontSize = 14.sp)
+                    )
+                }
+            }
+        }
+        if (genderError) {
+            Text(
+                text = "Please select a gender",
+                color = Color.Red,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier
+                    .padding(top = 5.dp, bottom = 10.dp, start = 10.dp)
+                    .align(Alignment.Start) // Align to the start (left)
+            )
+        }
+
+
         CustomButton(
             text = "Create an Account",
             textColor = Color(0xff121212),
@@ -210,15 +300,22 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
                 emailError = !emailPattern.matcher(email).matches()
                 passwordError = password.length < 5
                 usernameError = username.isEmpty()
-                if (!emailError && !passwordError) {
-                    navController.navigate("genresSelection/${email}/${username}/${password}")
-                } },
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
+                genderError = gender.isEmpty()
+                ageError = age.isEmpty() || age.toIntOrNull() == null
+                if (!emailError && !passwordError && !genderError && !ageError) {
+                    navController.navigate("genresSelection/${email}/${username}/${password}/${gender}/${age}")
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
         )
 
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Text(
                 text = "Already have an account?",

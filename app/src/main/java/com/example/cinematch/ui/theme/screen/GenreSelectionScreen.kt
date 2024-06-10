@@ -20,7 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.cinematch.ui.theme.utils.CustomButton
 
 @Composable
-fun GenresSelectionScreen(navController: NavController, email: String, username: String, password: String, modifier: Modifier = Modifier) {
+fun GenresSelectionScreen(navController: NavController, email: String, username: String, password: String, gender : String, age : String, modifier: Modifier = Modifier) {
     val genres = listOf("Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller") // DUMMY DOANG
     var selectedGenres by remember { mutableStateOf(setOf<String>()) }
     var genreError by remember { mutableStateOf(false) }
@@ -76,7 +76,7 @@ fun GenresSelectionScreen(navController: NavController, email: String, username:
                 if (selectedGenres.isEmpty()) {
                     genreError = true
                 } else {
-                    // TODO : SIGN UP AND NAVIGATE TO HOME
+                    // TODO : SIGN UP, LOGIN, AND NAVIGATE TO HOME
                 }
 
             },
@@ -112,5 +112,5 @@ fun GenreItem(genre: String, isSelected: Boolean, onClick: () -> Unit) {
 @Composable
 fun PreviewGenresSelectionScreen() {
     val navController = rememberNavController()
-    GenresSelectionScreen(navController = navController, email = "", username = "", password = "")
+    GenresSelectionScreen(navController = navController, email = "", username = "", password = "", gender = "", age = "")
 }

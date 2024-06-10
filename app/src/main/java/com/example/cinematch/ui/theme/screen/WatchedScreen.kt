@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun HomeScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun WatchedScreen(navController: NavController, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -28,7 +28,7 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier) {
             .padding(16.dp)
     ) {
         Text(
-            text = "HOME",
+            text = "WATCHED",
             color = Color(0xfff3f3f3),
             textAlign = TextAlign.Center,
             style = TextStyle(
