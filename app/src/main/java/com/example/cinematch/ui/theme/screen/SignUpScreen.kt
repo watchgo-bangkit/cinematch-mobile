@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
@@ -290,7 +291,6 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
                     .align(Alignment.Start) // Align to the start (left)
             )
         }
-
 
         CustomButton(
             text = "Create an Account",
