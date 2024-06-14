@@ -4,8 +4,13 @@ import android.annotation.SuppressLint
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.cinematch.api.TokenManager
 import com.example.cinematch.ui.theme.screen.GenresSelectionScreen
 import com.example.cinematch.ui.theme.screen.HomeScreen
 import com.example.cinematch.ui.theme.screen.LandingScreen
@@ -26,19 +32,31 @@ import com.example.cinematch.ui.theme.screen.WatchedScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-    Scaffold(
-        bottomBar = {
-            val currentBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = currentBackStackEntry?.destination?.route
-            if (shouldShowBottomBar(currentRoute)) {
-                BottomAppBar(
-                    containerColor = Color(0xFF121212),
-                ) { BottomNavigationBar(navController = navController) }
-            }
+    val context = LocalContext.current
+    val tokenManager = remember { TokenManager(context) }
+    var startDestination by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) {
+        startDestination = if (tokenManager.isTokenValid()) {
+            NavItem.Home.path
+        } else {
+            "landing"
         }
-    ) {
-        NavigationGraph(navController = navController)
+    }
+
+    if (startDestination != null) {
+        Scaffold(
+            bottomBar = {
+                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = currentBackStackEntry?.destination?.route
+                if (shouldShowBottomBar(currentRoute)) {
+                    BottomAppBar(
+                        containerColor = Color(0xFF121212),
+                    ) { BottomNavigationBar(navController = navController) }
+                }
+            }
+        ) {
+            NavigationGraph(navController = navController, startDestination = startDestination!!)
+        }
     }
 }
 
@@ -53,8 +71,8 @@ fun shouldShowBottomBar(currentRoute: String?): Boolean {
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = NavItem.Home.path) {
+fun NavigationGraph(navController: NavHostController, startDestination: String) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("landing") { LandingScreen(navController) }
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController) }
