@@ -59,7 +59,11 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful) {
                         val loginResp = response.body()
+                        Log.d("LoginResponse", "Received: $loginResp")
                         loginResponse.postValue(loginResp)
+                        if (loginResp != null) {
+                            tokenManager.saveUserProfile(loginResp)
+                        }
                         loginResp?.data?.token?.let {
                             tokenManager.saveToken(it)
                             navController.navigate("home") {
@@ -96,6 +100,7 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
 
     fun logout() {
         tokenManager.clearToken()
+        tokenManager.clearUserProfile()
     }
 }
 

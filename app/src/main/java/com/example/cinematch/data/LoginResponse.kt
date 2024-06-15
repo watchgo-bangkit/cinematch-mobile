@@ -13,7 +13,8 @@ data class LoginResponse(
             val email: String,
             val password: String,
             val age: Int,
-            val gender: String
+            val gender: String,
+            val preferences: List<String>
         )
     }
 }
