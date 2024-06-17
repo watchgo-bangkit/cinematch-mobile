@@ -38,9 +38,7 @@ import com.example.cinematch.viewmodel.AuthenticationViewModel
 import java.util.regex.Pattern
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
-import com.example.cinematch.api.TokenManager
 import com.example.cinematch.data.LoginRequest
-import com.example.cinematch.ui.theme.nav.NavItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +54,6 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, vie
         "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
     )
 
-    val loginResponse by viewModel.loginResponse.observeAsState()
     val errorMessage by viewModel.errorMessage.observeAsState()
 
     Column(
@@ -219,13 +216,6 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, vie
                 modifier = Modifier.clickable { navController.navigate("signup") }
             )
         }
-//        loginResponse?.let {
-//            navController.navigate("home") {
-//                popUpTo(navController.graph.startDestinationId) {
-//                    inclusive = true
-//                }
-//            }
-//        }
     }
 }
 

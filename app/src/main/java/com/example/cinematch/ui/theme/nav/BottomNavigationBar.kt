@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,12 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.ui.unit.*
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val navItems = listOf(NavItem.Home, NavItem.Watchlist, NavItem.Watched, NavItem.Profile)
-    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+    var selectedItem by rememberSaveable { mutableIntStateOf(navItems.indexOfFirst { it.path == currentRoute }) }
 
+    LaunchedEffect(currentRoute) {
+        selectedItem = navItems.indexOfFirst { it.path == currentRoute }
+    }
 
     NavigationBar(
         containerColor = Color(0xFF121212),

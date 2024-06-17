@@ -35,103 +35,147 @@ import kotlinx.coroutines.launch
 
 data class Movie(val id: Int, val title: String, val poster: Int)
 
+suspend fun fetchMoreMovies(onMoviesFetched: (List<Movie>) -> Unit) {
+    kotlinx.coroutines.delay(2000)
+    val newMovies = listOf(
+        Movie(4, "Movie 4", R.drawable.jedi),
+        Movie(5, "Movie 5", R.drawable.jedi),
+        Movie(6, "Movie 6", R.drawable.jedi),
+    )
+    onMoviesFetched(newMovies)
+}
+
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
 fun HomeScreen(navController: NavController, modifier: Modifier = Modifier) {
-    val movies = listOf(
-        Movie(1, "Movie 1", R.drawable.jedi),
-        Movie(2, "Movie 2", R.drawable.jedi),
-        Movie(3, "Movie 3", R.drawable.jedi)
-    )
+    var movies by remember {
+        mutableStateOf(
+            listOf(
+                Movie(1, "Movie 1", R.drawable.jedi),
+                Movie(2, "Movie 2", R.drawable.jedi),
+                Movie(3, "Movie 3", R.drawable.jedi)
+            )
+        )
+    }
+    val scope = rememberCoroutineScope()
+
+    var refreshKey by remember { mutableIntStateOf(0) }
+    var swipeCount by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(refreshKey) {
+        swipeCount = 0
+        fetchMoreMovies { newMovies ->
+            movies = newMovies
+        }
+    }
+
     Box(
-        modifier = Modifier.background(Color(0xff121212))
+        modifier = Modifier
+            .background(Color(0xff121212))
+            .fillMaxSize()
     ) {
-        Box {
-            val states = movies.reversed()
-                .map { it to rememberSwipeableCardState() }
-            val scope = rememberCoroutineScope()
+        if (swipeCount >= 3) {
             Box(
-                Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxSize()
-                    .aspectRatio(3f / 4f)
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                states.forEach { (movie, state) ->
-                    if (state.swipedDirection == null) {
-                        MovieCard(
-                            title = movie.title,
-                            posterResId = movie.poster,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .swipableCard(state = state,
-                                    blockedDirections = listOf(Direction.Down),
-                                    onSwiped = {
-                                        // handle di LaunchedEffect
-                                    },
-                                    onSwipeCancel = {
-                                        Log.d("Swipeable-Card", "Cancelled swipe")
-                                    }),
-                        )
-
-                    }
-                    LaunchedEffect(movie, state.swipedDirection) {
-                        if (state.swipedDirection != null) {
-
-                        }
-                        //  TODO : FETCH API BERDASARKAN SWIPE DIRECTION
-                    }
+                Button(
+                    onClick = { refreshKey++ },
+                    modifier = Modifier.align(Alignment.Center),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF95ACFF))
+                ) {
+                    Text("Refresh")
                 }
             }
-            Row(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 100.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                CircleButton(
-                    onClick = {
-                        scope.launch {
-                            val last = states.reversed()
-                                .firstOrNull {
-                                    it.second.offset.value == Offset(0f, 0f)
-                                }?.second
-                            last?.swipe(Direction.Left)
-                        }
-                    },
-                    icon = Icons.Rounded.Close
-                )
-                CircleButton(
-                    onClick = {
-                        scope.launch {
-                            val last = states.reversed()
-                                .firstOrNull {
-                                    it.second.offset.value == Offset(0f, 0f)
-                                }?.second
+        }
+        key(refreshKey) {
+            if (swipeCount < 3) {
+                Box {
+                    val states = movies.reversed()
+                        .map { it to rememberSwipeableCardState() }
+                    Box(
+                        Modifier
+                            .padding(horizontal = 24.dp)
+                            .fillMaxSize()
+                            .aspectRatio(3f / 4f)
+                    ) {
+                        states.forEach { (movie, state) ->
+                            if (state.swipedDirection == null) {
+                                MovieCard(
+                                    title = movie.title,
+                                    posterResId = movie.poster,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .swipableCard(state = state,
+                                            blockedDirections = listOf(Direction.Down),
+                                            onSwiped = {
+                                            },
+                                            onSwipeCancel = {
+                                                Log.d("Swipeable-Card", "Cancelled swipe")
+                                            }),
+                                )
 
-                            last?.swipe(Direction.Up)
+                            }
+                            LaunchedEffect(movie, state.swipedDirection) {
+                                if (state.swipedDirection != null) {
+                                    swipeCount++
+                                }
+                                //  TODO : FETCH API BERDASARKAN SWIPE DIRECTION
+                            }
                         }
-                    },
-                    icon = Icons.Rounded.Favorite
-                )
-                CircleButton(
-                    onClick = {
-                        scope.launch {
-                            val last = states.reversed()
-                                .firstOrNull {
-                                    it.second.offset.value == Offset(0f, 0f)
-                                }?.second
+                    }
+                    Row(
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 100.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        CircleButton(
+                            onClick = {
+                                scope.launch {
+                                    val last = states.reversed()
+                                        .firstOrNull {
+                                            it.second.offset.value == Offset(0f, 0f)
+                                        }?.second
+                                    last?.swipe(Direction.Left)
+                                }
+                            },
+                            icon = Icons.Rounded.Close
+                        )
+                        CircleButton(
+                            onClick = {
+                                scope.launch {
+                                    val last = states.reversed()
+                                        .firstOrNull {
+                                            it.second.offset.value == Offset(0f, 0f)
+                                        }?.second
 
-                            last?.swipe(Direction.Right)
-                        }
-                    },
-                    icon = Icons.Rounded.ThumbUp
-                )
+                                    last?.swipe(Direction.Up)
+                                }
+                            },
+                            icon = Icons.Rounded.Favorite
+                        )
+                        CircleButton(
+                            onClick = {
+                                scope.launch {
+                                    val last = states.reversed()
+                                        .firstOrNull {
+                                            it.second.offset.value == Offset(0f, 0f)
+                                        }?.second
+
+                                    last?.swipe(Direction.Right)
+                                }
+                            },
+                            icon = Icons.Rounded.ThumbUp
+                        )
+                    }
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun CircleButton(
@@ -150,7 +194,6 @@ fun CircleButton(
         )
     }
 }
-
 
 @Composable
 fun MovieCard(
@@ -192,3 +235,5 @@ fun Scrim(modifier: Modifier = Modifier) {
             .fillMaxWidth()
     )
 }
+
+

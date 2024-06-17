@@ -1,6 +1,8 @@
 package com.example.cinematch.ui.theme.nav
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -9,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -23,6 +26,7 @@ import com.example.cinematch.ui.theme.screen.GenresSelectionScreen
 import com.example.cinematch.ui.theme.screen.HomeScreen
 import com.example.cinematch.ui.theme.screen.LandingScreen
 import com.example.cinematch.ui.theme.screen.LoginScreen
+import com.example.cinematch.ui.theme.screen.MovieDetailScreen
 import com.example.cinematch.ui.theme.screen.ProfileScreen
 import com.example.cinematch.ui.theme.screen.SignUpScreen
 import com.example.cinematch.ui.theme.screen.WatchListScreen
@@ -55,7 +59,10 @@ fun AppNavigation() {
                 }
             }
         ) {
-            NavigationGraph(navController = navController, startDestination = startDestination!!)
+            NavigationGraph(
+                navController = navController,
+                startDestination = startDestination!!
+            )
         }
     }
 }
@@ -97,5 +104,14 @@ fun NavigationGraph(navController: NavHostController, startDestination: String) 
         composable(NavItem.Watchlist.path) { WatchListScreen(navController) }
         composable(NavItem.Watched.path) { WatchedScreen(navController) }
         composable(NavItem.Profile.path) { ProfileScreen(navController) }
+        composable(
+            "movieDetail/{movieId}",
+            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getInt("movieId")
+            movieId?.let {
+                MovieDetailScreen(navController = navController, movieId = it)
+            }
+        }
     }
 }
