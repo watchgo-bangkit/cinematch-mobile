@@ -9,4 +9,5 @@ object ApiConfig {
     const val GET_GENRE_ENDPOINT = "/api/movies/genres"
     const val GET_WATCHLIST_ENDPOINT = "/api/watchlist"
     const val GET_MOVIES_ENDPOINT = "/api/movies"
+    const val GET_RECOMMENDATIONS_ENDPOINT = "/api/recommendations"
 }
