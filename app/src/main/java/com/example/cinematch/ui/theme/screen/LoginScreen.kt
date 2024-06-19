@@ -34,11 +34,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.cinematch.R
 import com.example.cinematch.ui.theme.utils.CustomButton
+import com.example.cinematch.viewmodel.AuthenticationViewModel
 import java.util.regex.Pattern
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.livedata.observeAsState
+import com.example.cinematch.data.LoginRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun LoginScreen(navController: NavController, modifier: Modifier = Modifier, viewModel: AuthenticationViewModel = viewModel()) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -49,6 +53,8 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
     val emailPattern = Pattern.compile(
         "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
     )
+
+    val errorMessage by viewModel.errorMessage.observeAsState()
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -169,7 +175,14 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
             )
         }
 
-
+        errorMessage?.let {
+            Text(
+                text = it,
+                color = Color.Red,
+                style = TextStyle(fontSize = 12.sp),
+                modifier = Modifier.padding(top = 10.dp).align(Alignment.Start)
+            )
+        }
         CustomButton(
             text = "Login",
             textColor = Color(0xff121212),
@@ -178,7 +191,7 @@ fun LoginScreen(navController: NavController, modifier: Modifier = Modifier) {
                 emailError = !emailPattern.matcher(email).matches()
                 passwordError = password.length < 5
                 if (!emailError && !passwordError) {
-                    // TODO : LOG IN
+                    viewModel.login(LoginRequest(email, password), navController)
                 }
             },
             modifier = Modifier.padding(top = 10.dp)
