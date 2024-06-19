@@ -41,7 +41,6 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
                         val loginRequest = LoginRequest(request.email, request.password)
                         login(loginRequest, navController)
                     } else {
-                        Log.d("RegisterResponseFailed", "Received: $response")
                         errorMessage.postValue(response.message())
                     }
                 }
@@ -67,7 +66,7 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
                         loginResp?.data?.token?.let {
                             tokenManager.saveToken(it)
                             navController.navigate("home") {
-                                popUpTo("landing") { inclusive = true }
+                                popUpTo(0) { inclusive = true }
                             }
                         }
                     } else {

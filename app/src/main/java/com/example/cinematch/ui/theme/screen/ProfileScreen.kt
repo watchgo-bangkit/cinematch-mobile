@@ -107,7 +107,7 @@ fun ProfileScreen(navController: NavController, modifier: Modifier = Modifier) {
                             onClick = {
                                 authViewModel.logout()
                                 navController.navigate("login") {
-                                    popUpTo("profile") { inclusive = true }
+                                    popUpTo(0) { inclusive = true }
                                 }
                                 showLogoutDialog = false
                             }
@@ -130,7 +130,7 @@ fun ProfileScreen(navController: NavController, modifier: Modifier = Modifier) {
     } else {
         LaunchedEffect(Unit) {
             navController.navigate("login") {
-                popUpTo("profile") { inclusive = true }
+                popUpTo(0) { inclusive = true }
             }
         }
     }

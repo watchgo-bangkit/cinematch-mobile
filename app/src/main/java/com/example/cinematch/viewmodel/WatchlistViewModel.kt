@@ -13,6 +13,7 @@ import com.example.cinematch.data.AddWatchlistResponse
 import com.example.cinematch.data.LoginRequest
 import com.example.cinematch.data.RegisterRequest
 import com.example.cinematch.data.RegisterResponse
+import com.example.cinematch.data.UpdateWatchlistRequest
 import com.example.cinematch.data.WatchlistRequest
 import com.example.cinematch.data.WatchlistResponse
 import com.example.cinematch.data.WatchlistUpdateResponse
@@ -64,16 +65,19 @@ class WatchlistViewModel(application: Application) : AndroidViewModel(applicatio
     fun updateWatchlist(id: Int) {
         viewModelScope.launch {
             loading.value = true
-            RetrofitClient.apiService.updateWatchlist(id).enqueue(object :
+            RetrofitClient.apiService.updateWatchlist(id, UpdateWatchlistRequest(true)).enqueue(object :
                 Callback<WatchlistUpdateResponse> {
                 override fun onResponse(
                     call: Call<WatchlistUpdateResponse>,
                     response: Response<WatchlistUpdateResponse>
                 ) {
+                    Log.d("VM",id.toString())
                     if (response.isSuccessful) {
-                        errorMessage.postValue("Successfully added to watched")
+                        Log.d("BERHASIL",id.toString())
                         fetchWatchlist()
+                        errorMessage.postValue("Successfully added to watched")
                     } else {
+                        Log.d("GAGAL",response.message())
                         errorMessage.postValue(response.message())
                     }
                 }

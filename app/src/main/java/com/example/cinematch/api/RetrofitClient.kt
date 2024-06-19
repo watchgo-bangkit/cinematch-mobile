@@ -3,6 +3,7 @@ package com.example.cinematch.api
 import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
@@ -15,6 +16,9 @@ object RetrofitClient {
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(TokenInterceptor(tokenProvider))
+            .connectTimeout(30, TimeUnit.SECONDS)  // Connection timeout
+            .readTimeout(30, TimeUnit.SECONDS)     // Read timeout
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 

@@ -109,11 +109,16 @@ fun GenresSelectionScreen(navController: NavController, email: String, username:
                 if (selectedGenres.isEmpty()) {
                     genreSelectionError = true
                 } else {
+                    val processedGender = if (gender == "not specified") {
+                        "NOT_SPECIFIED"
+                    } else {
+                        gender.uppercase()
+                    }
                     val registerRequest = RegisterRequest(
                         name = username,
                         email = email,
                         password = password,
-                        gender = gender.uppercase(),
+                        gender = processedGender,
                         age = age.toInt(),
                         genre_preferences = selectedGenres.toList()
                     )
