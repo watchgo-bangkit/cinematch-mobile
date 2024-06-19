@@ -1,6 +1,7 @@
 package com.example.cinematch.ui.theme.nav
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -12,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -45,23 +47,34 @@ fun AppNavigation() {
         } else {
             "landing"
         }
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val restrictedRoutes = listOf("landing", "login", "signup")
+            val currentRoute = destination.route
+            if (currentRoute !in restrictedRoutes && !tokenManager.isTokenValid()) {
+                navController.navigate("landing") {
+                    popUpTo(0) { inclusive = true }
+                }
+            } else if (currentRoute in restrictedRoutes && tokenManager.isTokenValid()) {
+                navController.navigate(NavItem.Home.path) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
     }
 
     if (startDestination != null) {
-        Scaffold(
-            bottomBar = {
-                val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = currentBackStackEntry?.destination?.route
-                if (shouldShowBottomBar(currentRoute)) {
-                    BottomAppBar(
-                        containerColor = Color(0xFF121212),
-                    ) { BottomNavigationBar(navController = navController) }
-                }
+        Scaffold(bottomBar = {
+            val currentBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = currentBackStackEntry?.destination?.route
+            if (shouldShowBottomBar(currentRoute)) {
+                BottomAppBar(
+                    containerColor = Color(0xFF121212),
+                ) { BottomNavigationBar(navController = navController) }
             }
-        ) {
+        }) {
             NavigationGraph(
-                navController = navController,
-                startDestination = startDestination!!
+                navController = navController, startDestination = startDestination!!
             )
         }
     }
@@ -70,35 +83,38 @@ fun AppNavigation() {
 @Composable
 fun shouldShowBottomBar(currentRoute: String?): Boolean {
     return currentRoute in listOf(
-        NavItem.Home.path,
-        NavItem.Watchlist.path,
-        NavItem.Watched.path,
-        NavItem.Profile.path
+        NavItem.Home.path, NavItem.Watchlist.path, NavItem.Watched.path, NavItem.Profile.path
     )
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController, startDestination: String) {
+fun NavigationGraph(
+    navController: NavHostController,
+    startDestination: String,
+) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("landing") { LandingScreen(navController) }
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController) }
-        composable(
-            "genresSelection/{email}/{username}/{password}/{gender}/{age}",
-            arguments = listOf(
-                navArgument("email") { type = NavType.StringType },
+        composable("genresSelection/{email}/{username}/{password}/{gender}/{age}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType },
                 navArgument("username") { type = NavType.StringType },
                 navArgument("password") { type = NavType.StringType },
                 navArgument("gender") { type = NavType.StringType },
-                navArgument("age") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
+                navArgument("age") { type = NavType.StringType })) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             val username = backStackEntry.arguments?.getString("username") ?: ""
             val password = backStackEntry.arguments?.getString("password") ?: ""
             val gender = backStackEntry.arguments?.getString("gender") ?: ""
             val age = backStackEntry.arguments?.getString("age") ?: ""
-            GenresSelectionScreen(navController = navController, email = email, username = username, password = password, gender = gender, age = age)
+            GenresSelectionScreen(
+                navController = navController,
+                email = email,
+                username = username,
+                password = password,
+                gender = gender,
+                age = age
+            )
         }
         composable(NavItem.Home.path) { HomeScreen(navController) }
         composable(NavItem.Watchlist.path) { WatchListScreen(navController) }

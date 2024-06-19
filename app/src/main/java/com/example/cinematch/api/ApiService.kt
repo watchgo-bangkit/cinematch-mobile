@@ -8,6 +8,7 @@ import com.example.cinematch.data.MovieDetailResponse
 import com.example.cinematch.data.RecommendationResponse
 import com.example.cinematch.data.RegisterRequest
 import com.example.cinematch.data.RegisterResponse
+import com.example.cinematch.data.UpdateWatchlistRequest
 import com.example.cinematch.data.WatchlistRequest
 import com.example.cinematch.data.WatchlistResponse
 import com.example.cinematch.data.WatchlistUpdateResponse
@@ -36,6 +37,7 @@ interface ApiService {
     @PATCH("${ApiConfig.GET_WATCHLIST_ENDPOINT}/{id}")
     fun updateWatchlist(
         @Path("id") id: Int,
+        @Body request: UpdateWatchlistRequest
     ): Call<WatchlistUpdateResponse>
 
     @POST(ApiConfig.GET_WATCHLIST_ENDPOINT)
