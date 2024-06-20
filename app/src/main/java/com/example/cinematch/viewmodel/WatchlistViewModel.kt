@@ -39,7 +39,7 @@ class WatchlistViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             try {
                 val watchlistData = RetrofitClient.apiService.getWatchlist()
-                watchlist.postValue(watchlistData)
+                watchlist.postValue(watchlistData.filter { it.like })
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -53,7 +53,7 @@ class WatchlistViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             try {
                 val watchlistData = RetrofitClient.apiService.getWatchlist()
-                watchedMovies.postValue(watchlistData.filter { it.is_watched })
+                watchedMovies.postValue(watchlistData.filter { it.like }.filter { it.is_watched })
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

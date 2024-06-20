@@ -32,4 +32,15 @@ class RecommendationViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
+
+    fun fetchRecommendationsAgain() {
+        viewModelScope.launch {
+            try {
+                val recommendationData = RetrofitClient.apiService.getRecommendations()
+                recommendationResponse.postValue(recommendationData)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
