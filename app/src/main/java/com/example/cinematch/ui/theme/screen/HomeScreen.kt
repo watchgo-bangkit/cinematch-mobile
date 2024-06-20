@@ -44,18 +44,45 @@ data class Movie(val id: Int, val title: String, val posterUrl: String?)
 
 @OptIn(ExperimentalSwipeableCardApi::class)
 @Composable
-fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, viewModel: RecommendationViewModel = viewModel(), watchlistViewModel: WatchlistViewModel = viewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    viewModel: RecommendationViewModel = viewModel(),
+    watchlistViewModel: WatchlistViewModel = viewModel(),
+) {
     val recommendationResponse by viewModel.recommendationResponse.observeAsState(emptyList())
     val loading by viewModel.loading.observeAsState(false)
     val errorMessage by watchlistViewModel.errorMessage.observeAsState("")
     val scope = rememberCoroutineScope()
 
+    var swipeToFetchCount by remember { mutableIntStateOf(0) }
     var swipeCount by remember { mutableIntStateOf(0) }
     var refreshKey by remember { mutableIntStateOf(0) }
+    val movies = remember { mutableStateListOf<Movie>() }
 
-    LaunchedEffect(refreshKey) {
-        swipeCount = 0
+    LaunchedEffect(Unit) {
         viewModel.fetchRecommendations()
+    }
+
+    LaunchedEffect(swipeToFetchCount) {
+        if (swipeToFetchCount == 10) {
+            scope.launch {
+                viewModel.fetchRecommendationsAgain()
+                swipeToFetchCount = 0
+            }
+        }
+    }
+
+    LaunchedEffect(recommendationResponse) {
+        scope.launch {
+            movies.addAll(recommendationResponse.map {
+                Movie(
+                    it.movie_id,
+                    it.title,
+                    it.poster_path
+                )
+            })
+        }
     }
 
     Box(
@@ -63,30 +90,13 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
             .background(Color(0xff121212))
             .fillMaxSize()
     ) {
-        if (loading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color.White)
-            }
-        } else if (swipeCount >= 20) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = {
-                        refreshKey++
-                    },
-                    modifier = Modifier.align(Alignment.Center),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF95ACFF))
-                ) {
-                    Text("Refresh")
+        key(refreshKey) {
+            if (loading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color.White)
                 }
-            }
-        } else {
-            if (recommendationResponse.isNotEmpty()) {
-                key(refreshKey) {
-                    val movies = recommendationResponse.map { Movie(it.movie_id, it.title, it.poster_path) }
+            } else {
+                if (movies.isNotEmpty()) {
                     if (errorMessage.isNotEmpty()) {
                         Snackbar(
                             modifier = Modifier.align(Alignment.TopCenter),
@@ -99,6 +109,7 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
                     }
                     Box {
                         val states = movies.reversed().map { it to rememberSwipeableCardState() }
+
                         Box(
                             Modifier
                                 .padding(horizontal = 24.dp)
@@ -125,13 +136,33 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
                                 LaunchedEffect(movie, state.swipedDirection) {
                                     if (state.swipedDirection != null) {
                                         swipeCount++
+                                        swipeToFetchCount++
                                         if (state.swipedDirection.toString() == "Left") {
-                                            watchlistViewModel.addWatchlist(WatchlistRequest(movie.id, false, false))
+                                            watchlistViewModel.addWatchlist(
+                                                WatchlistRequest(
+                                                    movie.id,
+                                                    false,
+                                                    false
+                                                )
+                                            )
                                         } else if (state.swipedDirection.toString() == "Up") {
-                                            watchlistViewModel.addWatchlist(WatchlistRequest(movie.id, true, true))
+                                            watchlistViewModel.addWatchlist(
+                                                WatchlistRequest(
+                                                    movie.id,
+                                                    true,
+                                                    true
+                                                )
+                                            )
                                         } else {
-                                            watchlistViewModel.addWatchlist(WatchlistRequest(movie.id, true, false))
+                                            watchlistViewModel.addWatchlist(
+                                                WatchlistRequest(
+                                                    movie.id,
+                                                    true,
+                                                    false
+                                                )
+                                            )
                                         }
+                                        movies.removeAt(0)
                                     }
                                 }
                             }
@@ -147,7 +178,12 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
                                 onClick = {
                                     scope.launch {
                                         val last = states.reversed()
-                                            .firstOrNull { it.second.offset.value == Offset(0f, 0f) }?.second
+                                            .firstOrNull {
+                                                it.second.offset.value == Offset(
+                                                    0f,
+                                                    0f
+                                                )
+                                            }?.second
                                         last?.swipe(Direction.Left)
                                     }
                                 },
@@ -158,7 +194,12 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
                                 onClick = {
                                     scope.launch {
                                         val last = states.reversed()
-                                            .firstOrNull { it.second.offset.value == Offset(0f, 0f) }?.second
+                                            .firstOrNull {
+                                                it.second.offset.value == Offset(
+                                                    0f,
+                                                    0f
+                                                )
+                                            }?.second
                                         last?.swipe(Direction.Up)
                                     }
                                 },
@@ -169,7 +210,12 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
                                 onClick = {
                                     scope.launch {
                                         val last = states.reversed()
-                                            .firstOrNull { it.second.offset.value == Offset(0f, 0f) }?.second
+                                            .firstOrNull {
+                                                it.second.offset.value == Offset(
+                                                    0f,
+                                                    0f
+                                                )
+                                            }?.second
                                         last?.swipe(Direction.Right)
                                     }
                                 },
@@ -177,15 +223,16 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
                                 label = "Watchlist"
                             )
                         }
+
                     }
-                }
-            } else {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "No recommendations available",
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "No recommendations available",
+                            color = Color.White,
+                            fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }
@@ -196,7 +243,7 @@ fun HomeScreen(navController: NavController, modifier: Modifier = Modifier, view
 fun CircleButton(
     onClick: () -> Unit,
     icon: ImageVector,
-    label: String
+    label: String,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -237,9 +284,11 @@ fun MovieCard(
         Box {
             Image(
                 painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(data = posterUrl?.let { BuildConfig.ASSET_URL + it } ?: R.drawable.profile_placeholder).apply {
-                        placeholder(R.drawable.profile_placeholder)
-                    }.build()
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(data = posterUrl?.let { BuildConfig.ASSET_URL + it }
+                            ?: R.drawable.profile_placeholder).apply {
+                            placeholder(R.drawable.profile_placeholder)
+                        }.build()
                 ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
