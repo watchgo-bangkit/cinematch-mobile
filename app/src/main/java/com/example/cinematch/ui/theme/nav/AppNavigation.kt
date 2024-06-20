@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -33,6 +34,7 @@ import com.example.cinematch.ui.theme.screen.ProfileScreen
 import com.example.cinematch.ui.theme.screen.SignUpScreen
 import com.example.cinematch.ui.theme.screen.WatchListScreen
 import com.example.cinematch.ui.theme.screen.WatchedScreen
+import com.example.cinematch.viewmodel.AuthenticationViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -41,6 +43,7 @@ fun AppNavigation() {
     val context = LocalContext.current
     val tokenManager = remember { TokenManager(context) }
     var startDestination by remember { mutableStateOf<String?>(null) }
+    val authViewModel: AuthenticationViewModel = viewModel()
     LaunchedEffect(Unit) {
         startDestination = if (tokenManager.isTokenValid()) {
             NavItem.Home.path
@@ -49,7 +52,7 @@ fun AppNavigation() {
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val restrictedRoutes = listOf("landing", "login", "signup")
+            val restrictedRoutes = listOf("landing", "login", "signup", "genresSelection")
             val currentRoute = destination.route
             if (currentRoute !in restrictedRoutes && !tokenManager.isTokenValid()) {
                 navController.navigate("landing") {
@@ -74,7 +77,7 @@ fun AppNavigation() {
             }
         }) {
             NavigationGraph(
-                navController = navController, startDestination = startDestination!!
+                navController = navController, startDestination = startDestination!!, authViewModel = authViewModel
             )
         }
     }
@@ -91,31 +94,13 @@ fun shouldShowBottomBar(currentRoute: String?): Boolean {
 fun NavigationGraph(
     navController: NavHostController,
     startDestination: String,
+    authViewModel: AuthenticationViewModel
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("landing") { LandingScreen(navController) }
         composable("login") { LoginScreen(navController) }
-        composable("signup") { SignUpScreen(navController) }
-        composable("genresSelection/{email}/{username}/{password}/{gender}/{age}",
-            arguments = listOf(navArgument("email") { type = NavType.StringType },
-                navArgument("username") { type = NavType.StringType },
-                navArgument("password") { type = NavType.StringType },
-                navArgument("gender") { type = NavType.StringType },
-                navArgument("age") { type = NavType.StringType })) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            val username = backStackEntry.arguments?.getString("username") ?: ""
-            val password = backStackEntry.arguments?.getString("password") ?: ""
-            val gender = backStackEntry.arguments?.getString("gender") ?: ""
-            val age = backStackEntry.arguments?.getString("age") ?: ""
-            GenresSelectionScreen(
-                navController = navController,
-                email = email,
-                username = username,
-                password = password,
-                gender = gender,
-                age = age
-            )
-        }
+        composable("signup") { SignUpScreen(navController, authViewModel) }
+        composable("genresSelection") { GenresSelectionScreen(navController, authViewModel) }
         composable(NavItem.Home.path) { HomeScreen(navController) }
         composable(NavItem.Watchlist.path) { WatchListScreen(navController) }
         composable(NavItem.Watched.path) { WatchedScreen(navController) }

@@ -16,6 +16,9 @@ import com.example.cinematch.data.RegisterRequest
 import com.example.cinematch.data.RegisterResponse
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,6 +30,41 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
     val loginResponse = MutableLiveData<LoginResponse>()
     val errorMessage = MutableLiveData<String>()
     private val tokenManager = TokenManager(application)
+
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
+
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username
+
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
+
+    private val _gender = MutableStateFlow("")
+    val gender: StateFlow<String> = _gender
+
+    private val _age = MutableStateFlow("")
+    val age: StateFlow<String> = _age
+
+    fun setEmail(newEmail: String) {
+        _email.value = newEmail
+    }
+
+    fun setUsername(newUsername: String) {
+        _username.value = newUsername
+    }
+
+    fun setPassword(newPassword: String) {
+        _password.value = newPassword
+    }
+
+    fun setGender(newGender: String) {
+        _gender.value = newGender
+    }
+
+    fun setAge(newAge: String) {
+        _age.value = newAge
+    }
 
     init {
         RetrofitClient.initialize(tokenManager)

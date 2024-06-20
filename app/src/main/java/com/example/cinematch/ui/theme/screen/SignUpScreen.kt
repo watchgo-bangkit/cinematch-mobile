@@ -1,11 +1,11 @@
 package com.example.cinematch.ui.theme.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.unit.*
-
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -15,11 +15,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
@@ -38,19 +36,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.cinematch.viewmodel.AuthenticationViewModel
 import java.util.regex.Pattern
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun SignUpScreen(navController: NavController, signUpViewModel: AuthenticationViewModel = viewModel(), modifier: Modifier = Modifier) {
     val radioOptions = listOf("Female", "Male", "Not Specified")
 
-    var email by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
+    val email by signUpViewModel.email.collectAsState()
+    val username by signUpViewModel.username.collectAsState()
+    val password by signUpViewModel.password.collectAsState()
+    val gender by signUpViewModel.gender.collectAsState()
+    val age by signUpViewModel.age.collectAsState()
 
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -64,6 +66,8 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
         "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
     )
 
+    val scrollState = rememberScrollState()
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -71,6 +75,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
             .fillMaxSize()
             .background(Color(0xff121212))
             .padding(16.dp)
+            .verticalScroll(scrollState)
     ) {
         Text(
             text = "Sign Up",
@@ -85,7 +90,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = { signUpViewModel.setEmail(it) },
             placeholder = { Text(text = "Email", color = Color.Gray) },
             leadingIcon = {
                 Image(
@@ -124,7 +129,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = username,
-            onValueChange = { username = it },
+            onValueChange = { signUpViewModel.setUsername(it) },
             placeholder = { Text(text = "Username", color = Color.Gray) },
             leadingIcon = {
                 Image(
@@ -163,7 +168,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = { signUpViewModel.setPassword(it) },
             placeholder = { Text(text = "Password", color = Color.Gray) },
             leadingIcon = {
                 Image(
@@ -215,7 +220,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
         // Age Input Field
         OutlinedTextField(
             value = age,
-            onValueChange = { age = it },
+            onValueChange = { signUpViewModel.setAge(it) },
             placeholder = { Text(text = "Age", color = Color.Gray) },
             textStyle = TextStyle(color = Color.White),
             singleLine = true,
@@ -267,7 +272,7 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
                 ) {
                     RadioButton(
                         selected = gender == option,
-                        onClick = { gender = option },
+                        onClick = { signUpViewModel.setGender(option) },
                         colors = RadioButtonDefaults.colors(
                             selectedColor = Color(0xff95acff),
                             unselectedColor = Color.White
@@ -303,7 +308,12 @@ fun SignUpScreen(navController: NavController, modifier: Modifier = Modifier) {
                 genderError = gender.isEmpty()
                 ageError = age.isEmpty() || age.toIntOrNull() == null
                 if (!emailError && !passwordError && !genderError && !ageError) {
-                    navController.navigate("genresSelection/${email}/${username}/${password}/${gender}/${age}")
+                    Log.d("Signup",email)
+                    Log.d("Signup",username)
+                    Log.d("Signup",password)
+                    Log.d("Signup",gender)
+                    Log.d("Signup",age)
+                    navController.navigate("genresSelection")
                 }
             },
             modifier = Modifier
