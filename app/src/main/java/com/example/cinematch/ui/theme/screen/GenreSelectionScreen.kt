@@ -1,5 +1,6 @@
 package com.example.cinematch.ui.theme.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,16 +29,26 @@ import com.example.cinematch.viewmodel.AuthenticationViewModel
 import com.example.cinematch.viewmodel.GenreViewModel
 
 @Composable
-fun GenresSelectionScreen(navController: NavController, email: String, username: String, password: String, gender : String, age : String, modifier: Modifier = Modifier) {
+fun GenresSelectionScreen(navController: NavController, authViewModel: AuthenticationViewModel = viewModel(), modifier: Modifier = Modifier) {
     val genreViewModel: GenreViewModel = viewModel()
-    val authViewModel: AuthenticationViewModel = viewModel()
     val genres by genreViewModel.genreResponse.observeAsState()
     val genreError by genreViewModel.errorMessage.observeAsState()
     var selectedGenres by remember { mutableStateOf(setOf<Int>()) }
     var genreSelectionError by remember { mutableStateOf(false) }
 
+    val email by authViewModel.email.collectAsState()
+    val username by authViewModel.username.collectAsState()
+    val password by authViewModel.password.collectAsState()
+    val gender by authViewModel.gender.collectAsState()
+    val age by authViewModel.age.collectAsState()
+
     LaunchedEffect(Unit) {
         genreViewModel.fetchGenres()
+        Log.d("GenreSelection",email)
+        Log.d("GenreSelection",username)
+        Log.d("GenreSelection",password)
+        Log.d("GenreSelection",gender)
+        Log.d("GenreSelection",age)
     }
 
 
@@ -151,11 +162,4 @@ fun GenreItem(genre: Genre, isSelected: Boolean, onClick: () -> Unit) {
             style = TextStyle(fontSize = 18.sp)
         )
     }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-@Composable
-fun PreviewGenresSelectionScreen() {
-    val navController = rememberNavController()
-    GenresSelectionScreen(navController = navController, email = "", username = "", password = "", gender = "", age = "")
 }
